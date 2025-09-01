@@ -1,0 +1,335 @@
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+
+-- Create or get RemoteEvents
+local function getOrCreateRemoteEvent(name)
+    local event = ReplicatedStorage:FindFirstChild(name)
+    if not event then
+        event = Instance.new("RemoteEvent")
+        event.Name = name
+        event.Parent = ReplicatedStorage
+    end
+    return event
+end
+
+local decalSpamEvent = getOrCreateRemoteEvent("DecalSpamEvent")
+local intenseDecalSpamEvent = getOrCreateRemoteEvent("IntenseDecalSpamEvent")
+local unanchorAllEvent = getOrCreateRemoteEvent("UnanchorAllEvent")
+local globalAlertEvent = getOrCreateRemoteEvent("GlobalAlertEvent")
+local kickPlayerEvent = getOrCreateRemoteEvent("KickPlayerEvent")
+local kickAllEvent = getOrCreateRemoteEvent("KickAllEvent")
+
+-- Create ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "FEBypassGui"
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.ResetOnSpawn = false
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- Create Square Frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 250, 0, 250)
+frame.Position = UDim2.new(0.5, -125, 0.5, -125)
+frame.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Red frame
+frame.BorderColor3 = Color3.fromRGB(200, 0, 0)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+-- Create Title Label
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- Darker red
+title.BorderColor3 = Color3.fromRGB(150, 0, 0)
+title.Text = "FE Bypass GUI"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 18
+title.Font = Enum.Font.SourceSansBold
+title.Parent = frame
+
+-- Fly Button
+local flyButton = Instance.new("TextButton")
+flyButton.Size = UDim2.new(0.9, 0, 0, 30)
+flyButton.Position = UDim2.new(0.05, 0, 0.15, 0)
+flyButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+flyButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+flyButton.Text = "Toggle Fly"
+flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+flyButton.TextSize = 14
+flyButton.Font = Enum.Font.SourceSans
+flyButton.Parent = frame
+
+-- Force Field Button
+local forceFieldButton = Instance.new("TextButton")
+forceFieldButton.Size = UDim2.new(0.9, 0, 0, 30)
+forceFieldButton.Position = UDim2.new(0.05, 0, 0.25, 0)
+forceFieldButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+forceFieldButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+forceFieldButton.Text = "Toggle Force Field"
+forceFieldButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+forceFieldButton.TextSize = 14
+forceFieldButton.Font = Enum.Font.SourceSans
+forceFieldButton.Parent = frame
+
+-- Decal Spam Button
+local decalButton = Instance.new("TextButton")
+decalButton.Size = UDim2.new(0.9, 0, 0, 30)
+decalButton.Position = UDim2.new(0.05, 0, 0.35, 0)
+decalButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+decalButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+decalButton.Text = "Decal Spam"
+decalButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+decalButton.TextSize = 14
+decalButton.Font = Enum.Font.SourceSans
+decalButton.Parent = frame
+
+-- Intense Decal Spam Button
+local intenseDecalButton = Instance.new("TextButton")
+intenseDecalButton.Size = UDim2.new(0.9, 0, 0, 30)
+intenseDecalButton.Position = UDim2.new(0.05, 0, 0.45, 0)
+intenseDecalButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+intenseDecalButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+intenseDecalButton.Text = "Intense Decal Spam"
+intenseDecalButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+intenseDecalButton.TextSize = 14
+intenseDecalButton.Font = Enum.Font.SourceSans
+intenseDecalButton.Parent = frame
+
+-- Unanchor All Button
+local unanchorButton = Instance.new("TextButton")
+unanchorButton.Size = UDim2.new(0.9, 0, 0, 30)
+unanchorButton.Position = UDim2.new(0.05, 0, 0.55, 0)
+unanchorButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+unanchorButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+unanchorButton.Text = "Unanchor All"
+unanchorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+unanchorButton.TextSize = 14
+unanchorButton.Font = Enum.Font.SourceSans
+unanchorButton.Parent = frame
+
+-- Global Alert Button
+local alertButton = Instance.new("TextButton")
+alertButton.Size = UDim2.new(0.9, 0, 0, 30)
+alertButton.Position = UDim2.new(0.05, 0, 0.65, 0)
+alertButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+alertButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+alertButton.Text = "Global Alert"
+alertButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+alertButton.TextSize = 14
+alertButton.Font = Enum.Font.SourceSans
+alertButton.Parent = frame
+
+-- Kick Player Input and Button
+local kickInput = Instance.new("TextBox")
+kickInput.Size = UDim2.new(0.9, 0, 0, 30)
+kickInput.Position = UDim2.new(0.05, 0, 0.75, 0)
+kickInput.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+kickInput.BorderColor3 = Color3.fromRGB(0, 0, 200)
+kickInput.Text = "Enter Player Name"
+kickInput.TextColor3 = Color3.fromRGB(0, 0, 0)
+kickInput.TextSize = 14
+kickInput.Font = Enum.Font.SourceSans
+kickInput.ClearTextOnFocus = true
+kickInput.Parent = frame
+
+local kickButton = Instance.new("TextButton")
+kickButton.Size = UDim2.new(0.9, 0, 0, 30)
+kickButton.Position = UDim2.new(0.05, 0, 0.85, 0)
+kickButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+kickButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+kickButton.Text = "Kick Player"
+kickButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+kickButton.TextSize = 14
+kickButton.Font = Enum.Font.SourceSans
+kickButton.Parent = frame
+
+-- Kick All Button
+local kickAllButton = Instance.new("TextButton")
+kickAllButton.Size = UDim2.new(0.9, 0, 0, 30)
+kickAllButton.Position = UDim2.new(0.05, 0, 0.95, 0)
+kickAllButton.BackgroundColor3 = Color3.fromRGB(0, 0, 255) -- Blue
+kickAllButton.BorderColor3 = Color3.fromRGB(0, 0, 200)
+kickAllButton.Text = "Kick All"
+kickAllButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+kickAllButton.TextSize = 14
+kickAllButton.Font = Enum.Font.SourceSans
+kickAllButton.Parent = frame
+
+-- Fly variables
+local isFlying = false
+local bodyVelocity = nil
+local bodyGyro = nil
+local flySpeed = 50
+local keys = {}
+
+-- Fly function
+local function toggleFly()
+    isFlying = not isFlying
+    local character = player.Character
+    if not character then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Character not found!",
+            Duration = 3
+        })
+        return
+    end
+    local rootPart = character:FindFirstChild("HumanoidRootPart")
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not rootPart or not humanoid then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Character components missing!",
+            Duration = 3
+        })
+        return
+    end
+
+    if isFlying then
+        bodyVelocity = Instance.new("BodyVelocity")
+        bodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+        bodyVelocity.Parent = rootPart
+
+        bodyGyro = Instance.new("BodyGyro")
+        bodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+        bodyGyro.CFrame = rootPart.CFrame
+        bodyGyro.Parent = rootPart
+
+        humanoid.PlatformStand = true
+        flyButton.Text = "Fly: ON"
+    else
+        if bodyVelocity then bodyVelocity:Destroy() end
+        if bodyGyro then bodyGyro:Destroy() end
+        humanoid.PlatformStand = false
+        flyButton.Text = "Fly: OFF"
+    end
+end
+
+-- Update fly velocity
+local function updateFly()
+    if not isFlying then return end
+    local direction = Vector3.new(0, 0, 0)
+    if keys[Enum.KeyCode.W] then direction = direction + Vector3.new(0, 0, -1) end
+    if keys[Enum.KeyCode.S] then direction = direction + Vector3.new(0, 0, 1) end
+    if keys[Enum.KeyCode.A] then direction = direction + Vector3.new(-1, 0, 0) end
+    if keys[Enum.KeyCode.D] then direction = direction + Vector3.new(1, 0, 0) end
+    if keys[Enum.KeyCode.Space] then direction = direction + Vector3.new(0, 1, 0) end
+    if keys[Enum.KeyCode.LeftControl] then direction = direction + Vector3.new(0, -1, 0) end
+
+    if bodyVelocity and bodyGyro then
+        bodyVelocity.Velocity = (bodyGyro.CFrame * direction.Unit) * flySpeed * (direction.Magnitude > 0 and 1 or 0)
+    end
+end
+
+-- Input handling for stable fly
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    keys[input.KeyCode] = true
+    updateFly()
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    keys[input.KeyCode] = false
+    updateFly()
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+    if isFlying and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local mouseDelta = input.Delta
+        if bodyGyro then
+            bodyGyro.CFrame = bodyGyro.CFrame * CFrame.Angles(-math.rad(mouseDelta.Y * 0.2), -math.rad(mouseDelta.X * 0.2), 0)
+        end
+    end
+end)
+
+-- Force Field variables
+local hasForceField = false
+local forceField = nil
+
+-- Force Field function
+local function toggleForceField()
+    hasForceField = not hasForceField
+    local character = player.Character
+    if not character then
+        StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Character not found!",
+            Duration = 3
+        })
+        return
+    end
+
+    if hasForceField then
+        forceField = Instance.new("ForceField")
+        forceField.Parent = character
+        forceFieldButton.Text = "Force Field: ON"
+    else
+        if forceField then forceField:Destroy() end
+        forceFieldButton.Text = "Force Field: OFF"
+    end
+end
+
+-- Connect buttons
+flyButton.MouseButton1Click:Connect(toggleFly)
+forceFieldButton.MouseButton1Click:Connect(toggleForceField)
+decalButton.MouseButton1Click:Connect(function()
+    decalSpamEvent:FireServer()
+end)
+intenseDecalButton.MouseButton1Click:Connect(function()
+    intenseDecalSpamEvent:FireServer()
+end)
+unanchorButton.MouseButton1Click:Connect(function()
+    unanchorAllEvent:FireServer()
+end)
+alertButton.MouseButton1Click:Connect(function()
+    globalAlertEvent:FireServer("OP Admin Alert!")
+end)
+kickButton.MouseButton1Click:Connect(function()
+    local targetName = kickInput.Text
+    local targetPlayer = Players:FindFirstChild(targetName)
+    if targetPlayer then
+        kickPlayerEvent:FireServer(targetPlayer)
+    else
+        StarterGui:SetCore("SendNotification", {
+            Title = "Error",
+            Text = "Player '" .. targetName .. "' not found!",
+            Duration = 3
+        })
+    end
+end)
+kickAllButton.MouseButton1Click:Connect(function()
+    kickAllEvent:FireServer()
+end)
+
+-- Handle character reload
+player.CharacterAdded:Connect(function(newChar)
+    character = newChar
+    humanoid = character:WaitForChild("Humanoid")
+    rootPart = character:WaitForChild("HumanoidRootPart")
+    if isFlying then
+        toggleFly()
+        toggleFly()
+    end
+    if hasForceField then
+        toggleForceField()
+        toggleForceField()
+    end
+end)
+
+-- Receive server-sent alerts
+globalAlertEvent.OnClientEvent:Connect(function(message)
+    StarterGui:SetCore("SendNotification", {
+        Title = "Admin Alert",
+        Text = message,
+        Duration = 5
+    })
+end)
